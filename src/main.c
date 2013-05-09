@@ -110,7 +110,6 @@ static GtkWidget* create_window(void){
 	/// Menu organizing
 	gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 
-
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), file_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), new_nation);
@@ -130,17 +129,17 @@ static GtkWidget* create_window(void){
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(help), help_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help);
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), help_option);
-	gtk_widget_add_accelerator(help_option, "activate", accel_group, GDK_KEY_F1, GDK_MODIFIER_MASK, GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(help_option, "activate", accel_group, GDK_KEY_H, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), about);
 
 	/// Menu events
-	g_signal_connect (G_OBJECT(new_nation), "activate", G_CALLBACK(*on_new_nation), NULL);
+	g_signal_connect (G_OBJECT(new_nation), "activate", G_CALLBACK(on_new_nation), NULL);
 	g_signal_connect (G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
 
-	g_signal_connect (G_OBJECT(update), "activate", G_CALLBACK(*on_update), NULL);
+	g_signal_connect (G_OBJECT(update), "activate", G_CALLBACK(on_update), NULL);
 
-	g_signal_connect (G_OBJECT(help_option), "activate", G_CALLBACK(*on_help), NULL);
-	g_signal_connect (G_OBJECT(about), "activate", G_CALLBACK(*on_about), NULL);
+	g_signal_connect (G_OBJECT(help_option), "activate", G_CALLBACK(on_help), NULL);
+	g_signal_connect (G_OBJECT(about), "activate", G_CALLBACK(on_about), NULL);
 
 
 	/// Main box starting
@@ -185,6 +184,30 @@ void on_help(){
 }
 
 void on_about(){
+	///Declaring about stuff
+	GtkWidget *about_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title (GTK_WINDOW(about_window), "About");
+	GtkWidget *main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+	GtkWidget *label = gtk_label_new("Nationstates-linux is free software: you can redistribute it and/or modify\n"
+						"it under the terms of the GNU General Public License as published by\n"
+						"the Free Software Foundation, either version 3 of the License, or\n"
+						"(at your option) any later version.\n"
+						"\n"
+						"Nationstates-linux is distributed in the hope that it will be useful,\n"
+						"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+						"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+						"GNU General Public License for more details.\n");
+	GtkWidget *close_button = gtk_button_new_with_label("close");
+
+	///Object Placement in window
+	gtk_container_add(GTK_CONTAINER(about_window), main_box);
+	gtk_box_pack_start(GTK_BOX(main_box), label, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(main_box), close_button, FALSE, FALSE, 1);
+
+	///signal handlers
+
+	///Make window show
+	gtk_widget_show_all(about_window);
 
 }
 
