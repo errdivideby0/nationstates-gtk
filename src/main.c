@@ -19,6 +19,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <curl/curl.h>
 #include "reading.h"
+#include "main.h"
 
 void get_file(char* file, char* url){
 	CURL *curl = curl_easy_init();
@@ -90,30 +91,57 @@ static GtkWidget* create_window(void){
 	GtkWidget *view_menu = gtk_menu_new();
 	GtkWidget *tools_menu = gtk_menu_new();
 	GtkWidget *help_menu = gtk_menu_new();
+
 	GtkWidget *file = gtk_menu_item_new_with_label("File");
+	GtkWidget *new_nation = gtk_menu_item_new_with_label("Add Nation");
+	GtkWidget *file_sep = gtk_separator_menu_item_new();
+	GtkWidget *quit = gtk_menu_item_new_with_label("Quit");
+
 	GtkWidget *view = gtk_menu_item_new_with_label("View");
+
 	GtkWidget *tools = gtk_menu_item_new_with_label("Tools");
+	GtkWidget *update = gtk_menu_item_new_with_label("Update All");
+
 	GtkWidget *help = gtk_menu_item_new_with_label("Help");
-	GtkWidget *quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
+	GtkWidget *help_option = gtk_menu_item_new_with_label("Help");
+	GtkWidget *about = gtk_menu_item_new_with_label("About");
+
 
 	/// Menu organizing
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), file_menu);
+	gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 
+
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), file_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), new_nation);
+	gtk_widget_add_accelerator(new_nation, "activate", accel_group, GDK_KEY_N, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), file_sep);
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), quit);
-	gtk_widget_add_accelerator(quit, "activate", accel_group, GDK_KEY_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(quit, "activate", accel_group, GDK_KEY_Q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(view), view_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(tools), tools_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), tools);
+	gtk_menu_shell_append(GTK_MENU_SHELL(tools_menu), update);
+	gtk_widget_add_accelerator(update, "activate", accel_group, GDK_KEY_U, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(help), help_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help);
+	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), help_option);
+	gtk_widget_add_accelerator(help_option, "activate", accel_group, GDK_KEY_F1, GDK_MODIFIER_MASK, GTK_ACCEL_VISIBLE);
+	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), about);
 
 	/// Menu events
+	g_signal_connect (G_OBJECT(new_nation), "activate", G_CALLBACK(*on_new_nation), NULL);
 	g_signal_connect (G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
+
+	g_signal_connect (G_OBJECT(update), "activate", G_CALLBACK(*on_update), NULL);
+
+	g_signal_connect (G_OBJECT(help_option), "activate", G_CALLBACK(*on_help), NULL);
+	g_signal_connect (G_OBJECT(about), "activate", G_CALLBACK(*on_about), NULL);
+
 
 	/// Main box starting
 	gtk_container_add(GTK_CONTAINER(window), main_box);
@@ -142,6 +170,22 @@ static GtkWidget* create_window(void){
 	//g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(get_nation_data), NULL);
 
 	return window;
+}
+
+void on_new_nation(){
+
+}
+
+void on_update(){
+
+}
+
+void on_help(){
+
+}
+
+void on_about(){
+
 }
 
 void get_nation_data(const char* nation){
