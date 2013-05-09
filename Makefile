@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS=-O3 -pedantic -Wall --std=c11
 OBJ_DIR = obj
 SRC_DIR = src
-INC=`pkg-config --cflags --libs gtk+-3.0`
+INC=`pkg-config --cflags --libs gtk+-3.0 libcurl`
 
 OBJECTS = main.o reading.o
 OBJECT_PATHS = $(patsubst %,$(OBJ_DIR)/%,$(OBJECTS))
