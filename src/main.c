@@ -279,6 +279,7 @@ void refresh_nations(){
 	}
 }
 
+
 void nation_selection_changed(){
 	refresh_saves();
 }
