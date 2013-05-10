@@ -32,7 +32,7 @@ GtkListStore *nationstore;
 GtkListStore *savestore;
 GtkWidget *nationview;
 GtkWidget *saveview;
-GtkTreeIter nation_row;
+GtkTreeIter nation_row, save_row;
 GtkTreeSelection *selection;
 GtkCellRenderer *renderer;
 

@@ -175,8 +175,6 @@ static GtkWidget* create_window(void){
 	/// Signal to update a nation. Button should be the right menu click for update data
 	//g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(get_nation_data), NULL);
 
-
-	//// TESTING
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nationview));
 	g_signal_connect(selection, "changed", G_CALLBACK(nation_selection_changed), "");
 
@@ -289,6 +287,29 @@ void nation_selection_changed(){
 void refresh_saves(){
 	get_selected_nation();
 	/// open selected_nation datelog and print them to saveview
+	char* filepath = malloc(128);;
+	strcat(filepath, "./nations-store/");
+	strcat(filepath, selected_nation);
+	strcat(filepath, "/datelog.txt");
+	FILE *fp = fopen(filepath, "r");
+	printf("%s", filepath);
+	free(filepath);
+
+	int count = count_lines(fp);
+	char* saves[count];
+	read_to_array(fp, &saves[0], count);
+	fclose(fp);
+
+	if(count>0){
+		gtk_list_store_clear(savestore);
+		for(i=0; i<count; i++){
+			int end = strlen(saves[i]) - 1;
+			if (saves[i][end] == '\n')
+				saves[i][end] = '\0';
+			gtk_list_store_append(savestore, &save_row);
+			gtk_list_store_set(savestore, &save_row, 0, saves[i], -1);
+		}
+	}
 }
 
 /// When this is called, gets the currently selected nation in nationview and sets the global variable selected_nation to the name of the nation.
