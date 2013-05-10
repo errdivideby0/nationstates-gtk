@@ -15,12 +15,21 @@
     along with nationstates-gtk.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-
+void nation_selection_changed();
+void get_selected_nation();
+void refresh_saves();
 void on_new_nation();
 void on_update();
 void on_help();
 void on_about();
 
+GtkListStore *nationstore;
+GtkListStore *savestore;
+GtkWidget *nationview;
+GtkWidget *saveview;
+GtkTreeIter nation_row;
+GtkTreeSelection *selection;
+GtkCellRenderer *renderer;
+
+int i;
+char* selected_nation;

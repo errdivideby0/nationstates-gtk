@@ -54,15 +54,13 @@ static GtkWidget* create_window(void){
 	GtkWidget *graph_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	GtkWidget *event_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
-	/// Declare a new notebook
-	GtkWidget *notebook = gtk_notebook_new();
-
 	/// Append the pages with appropriate labels to the notebook
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), save_tab, gtk_label_new("Saved Data"));
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), description_tab, gtk_label_new("Description"));
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), region_tab, gtk_label_new("Region"));
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), graph_tab, gtk_label_new("Census Graph"));
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), event_tab, gtk_label_new("Events"));
+	GtkWidget* tabs[] = {save_tab, description_tab, region_tab, graph_tab, event_tab};
+	char* tab_labels[] = {"Saved Data", "Desription", "Region", "Census Graph", "Events"};
+	GtkWidget *notebook = gtk_notebook_new();
+	for(i=0; i<sizeof(tabs)/sizeof(tabs[0]); i++)
+		gtk_notebook_append_page(GTK_NOTEBOOK(notebook), tabs[i], gtk_label_new(tab_labels[i]));
+
 
 	/// Treeview declarations
 	GtkWidget *treeview = gtk_tree_view_new();
@@ -72,14 +70,32 @@ static GtkWidget* create_window(void){
 	GtkTreeViewColumn *plus_minus = gtk_tree_view_column_new();
 
 	/// Treeview formation
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), nation_stat);
-	gtk_tree_view_column_set_title(nation_stat, "Nation Statistics");
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column_a);
-	gtk_tree_view_column_set_title(column_a, "a");
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column_b);
-	gtk_tree_view_column_set_title(column_b, "b");
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), plus_minus);
-	gtk_tree_view_column_set_title(plus_minus, "+/-");
+	GtkTreeViewColumn* columns[] = {nation_stat, column_a, column_b, plus_minus};
+	char* column_labels[] = {"Nation Statistics", "a", "b", "+/-"};
+	for(i=0; i<sizeof(columns)/sizeof(columns[0]); i++){
+		gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), columns[i]);
+		gtk_tree_view_column_set_title(columns[i], column_labels[i]);
+	}
+
+	/// Nationview formation
+	nationview = gtk_tree_view_new();
+	renderer = gtk_cell_renderer_text_new();
+	GtkTreeViewColumn *nationlist = gtk_tree_view_column_new_with_attributes("Nations", renderer, "text", 0, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(nationview), nationlist);
+
+	/// Saveview formation
+	saveview = gtk_tree_view_new();
+	GtkTreeViewColumn *savelist = gtk_tree_view_column_new_with_attributes("Saves", renderer, "text", 0, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(saveview), savelist);
+	gtk_tree_view_column_set_title(savelist, "Saves");
+
+	/// Make and attach liststores to savelists
+	nationstore = gtk_list_store_new(1, G_TYPE_STRING);
+	savestore = gtk_list_store_new(1, G_TYPE_STRING);
+
+	gtk_tree_view_set_model(GTK_TREE_VIEW(nationview), GTK_TREE_MODEL(nationstore));
+	gtk_tree_view_set_model(GTK_TREE_VIEW(saveview), GTK_TREE_MODEL(savestore));
+
 
 	/// Label for the flag and nation information
 	GtkWidget *flag_nation_info_label = gtk_label_new("test");
@@ -158,6 +174,8 @@ static GtkWidget* create_window(void){
 
 	/// Left box starting
 	gtk_box_pack_start(GTK_BOX(left_box), treeview, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(save_tab), nationview, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(save_tab), saveview, TRUE, TRUE, 1);
 
 	/// Right box starting
 	gtk_box_pack_start(GTK_BOX(right_box), flag_nation_info_label, TRUE, TRUE, 1);
@@ -168,6 +186,11 @@ static GtkWidget* create_window(void){
 
 	/// Signal to update a nation. Button should be the right menu click for update data
 	//g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(get_nation_data), NULL);
+
+
+	//// TESTING
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nationview));
+	g_signal_connect(selection, "changed", G_CALLBACK(nation_selection_changed), "");
 
 	return window;
 }
@@ -186,6 +209,48 @@ void on_help(){
 
 void on_about(){
 
+}
+
+void refresh_nations(){
+	FILE *fp = fopen("./name-store/nation_list.txt", "r");
+	int count = count_lines(fp);
+	char* nations[count];
+	read_to_array(fp, &nations[0], count);
+	fclose(fp);
+
+	if(count>0){
+		gtk_list_store_clear(nationstore);
+		for(i=0; i<count; i++){
+			gtk_list_store_append(nationstore, &nation_row);
+			gtk_list_store_set(nationstore, &nation_row, 0, nations[i], -1);
+		}
+	}
+}
+
+void nation_selection_changed(){
+	refresh_saves();
+}
+
+/// This should be called everytime a change happens to the nationview (new data was retrieved, a nation added, deleted, etc);
+void refresh_saves(){
+	get_selected_nation();
+	/// open selected_nation datelog and print them to saveview
+
+	///
+}
+
+/// When this is called, gets the currently selected nation in nationview and sets the global variable selected_nation to the name of the nation.
+void get_selected_nation(){
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	char *selected_nation = NULL;
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nationview));
+	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(selection), &model, &iter)){
+		gtk_tree_model_get(model, &iter, 0, &selected_nation,  -1);
+		int end = strlen(selected_nation) - 1;
+		if (selected_nation[end] == '\n')
+			selected_nation[end] = '\0';
+	}
 }
 
 void get_nation_data(const char* nation){
@@ -210,10 +275,11 @@ int main(int argc, char **argv){
 	/// Create a reference for the window and put our window in it.
 	GtkWidget *main_window = create_window();
 
-	get_nation_data("nouran");
-
 	/// Show all the widgets that exist in the main_window
 	gtk_widget_show_all (main_window);
+
+	/// Load the saves
+	refresh_nations();
 
 	/// Start the wait for event loop
 	gtk_main();
