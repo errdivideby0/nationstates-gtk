@@ -27,8 +27,6 @@ void about_window_close(GtkWidget *widget, gpointer window);
 
 void get_nation_data(const char* nation);
 void get_file(char* file, char* url);
-<<<<<<< HEAD
-=======
 
 GtkListStore *nationstore;
 GtkListStore *savestore;
@@ -37,7 +35,6 @@ GtkWidget *saveview;
 GtkTreeIter nation_row;
 GtkTreeSelection *selection;
 GtkCellRenderer *renderer;
->>>>>>> 182840605f91546b1700936367eb4056a63b3449
 
 int i;
 char* selected_nation;

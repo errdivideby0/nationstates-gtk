@@ -44,12 +44,6 @@ static GtkWidget* create_window(void){
 	GtkWidget *graph_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	GtkWidget *event_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
-	/// Label for the flag and nation information
-	GtkWidget *infobox = gtk_label_new("test");
-
-	/// Declare a new notebook
-	GtkWidget *notebook = gtk_notebook_new();
-
 	/// Append the pages with appropriate labels to the notebook
 	GtkWidget* tabs[] = {save_tab, description_tab, region_tab, graph_tab, event_tab};
 	char* tab_labels[] = {"Saved Data", "Desription", "Region", "Census Graph", "Events"};
