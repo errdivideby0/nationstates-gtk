@@ -66,6 +66,12 @@ static GtkWidget* create_window(void){
 		gtk_tree_view_column_set_title(columns[i], column_labels[i]);
 	}
 
+	/// Save tab scrolled window
+	GtkWidget *save_view_scroll = gtk_scrolled_window_new(NULL, NULL);
+	GtkWidget *nation_view_scroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_box_pack_start(GTK_BOX(save_tab), nation_view_scroll, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(save_tab), save_view_scroll, TRUE, TRUE, 1);
+
 	/// Nationview formation
 	nationview = gtk_tree_view_new();
 	renderer = gtk_cell_renderer_text_new();
@@ -122,7 +128,7 @@ static GtkWidget* create_window(void){
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(view), view_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view);
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(hide_info), FALSE	);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(hide_info), FALSE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), hide_info);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(tools), tools_menu);
@@ -162,11 +168,11 @@ static GtkWidget* create_window(void){
 
 	/// Left box starting
 	gtk_box_pack_start(GTK_BOX(left_box), treeview, TRUE, TRUE, 1);
-	gtk_box_pack_start(GTK_BOX(save_tab), nationview, TRUE, TRUE, 1);
-	gtk_box_pack_start(GTK_BOX(save_tab), saveview, TRUE, TRUE, 1);
+	gtk_container_add(GTK_CONTAINER(nation_view_scroll), nationview);
+	gtk_container_add(GTK_CONTAINER(save_view_scroll), saveview);
 
 	/// Right box starting
-	gtk_box_pack_start(GTK_BOX(right_box), infobox, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(right_box), infobox, FALSE, FALSE, 1);
 	gtk_box_pack_start(GTK_BOX(right_box), notebook, TRUE, TRUE, 1);
 
 	/// Set up signal handlers for events
