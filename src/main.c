@@ -285,15 +285,17 @@ void nation_selection_changed(){
 }
 
 /// This should be called everytime a change happens to the nationview (new data was retrieved, a nation added, deleted, etc);
-void refresh_saves(){
-	get_selected_nation();
-	/// open selected_nation datelog and print them to saveview
-	char* filepath = malloc(128);;
+int refresh_saves(){
+	char* selected_nat = get_selected_nation();
+	char* filepath = malloc(256);
 	strcat(filepath, "./nations-store/");
-	strcat(filepath, selected_nation);
+	strcat(filepath, selected_nat);
 	strcat(filepath, "/datelog.txt");
 	FILE *fp = fopen(filepath, "r");
-	printf("%s", filepath);
+	if(fp == NULL){
+		printf("Could not find file: %s\n", filepath);
+		return 1;
+	}
 	free(filepath);
 
 	int count = count_lines(fp);
@@ -311,20 +313,23 @@ void refresh_saves(){
 			gtk_list_store_set(savestore, &save_row, 0, saves[i], -1);
 		}
 	}
+	return 0;
 }
 
 /// When this is called, gets the currently selected nation in nationview and sets the global variable selected_nation to the name of the nation.
-void get_selected_nation(){
+char* get_selected_nation(){
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	char *selected_nation = NULL;
+	char* selected_nation = NULL;
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nationview));
 	if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(selection), &model, &iter)){
 		gtk_tree_model_get(model, &iter, 0, &selected_nation,  -1);
 		int end = strlen(selected_nation) - 1;
 		if (selected_nation[end] == '\n')
 			selected_nation[end] = '\0';
+		return selected_nation;
 	}
+	return "";
 }
 
 void get_nation_data(const char* nation){
