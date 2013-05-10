@@ -21,19 +21,6 @@
 #include "reading.h"
 #include "main.h"
 
-void get_file(char* file, char* url){
-	CURL *curl = curl_easy_init();
-	if (curl) {
-		FILE *fp = fopen(file,"wb");
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-		curl_easy_perform(curl);
-		curl_easy_cleanup(curl);
-		fclose(fp);
-	}
-}
-
 static GtkWidget* create_window(void){
 
 	/// Create the main window and set its title
@@ -53,6 +40,9 @@ static GtkWidget* create_window(void){
 	GtkWidget *region_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	GtkWidget *graph_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 	GtkWidget *event_tab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+
+	/// Label for the flag and nation information
+	GtkWidget *infobox = gtk_label_new("test");
 
 	/// Declare a new notebook
 	GtkWidget *notebook = gtk_notebook_new();
@@ -81,8 +71,7 @@ static GtkWidget* create_window(void){
 	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), plus_minus);
 	gtk_tree_view_column_set_title(plus_minus, "+/-");
 
-	/// Label for the flag and nation information
-	GtkWidget *flag_nation_info_label = gtk_label_new("test");
+
 
 	/// Menu stuff
 	GtkAccelGroup *accel_group = gtk_accel_group_new();
@@ -98,6 +87,7 @@ static GtkWidget* create_window(void){
 	GtkWidget *quit = gtk_menu_item_new_with_label("Quit");
 
 	GtkWidget *view = gtk_menu_item_new_with_label("View");
+	GtkWidget *hide_info = gtk_check_menu_item_new_with_label("Hide Info/Flag Box");
 
 	GtkWidget *tools = gtk_menu_item_new_with_label("Tools");
 	GtkWidget *update = gtk_menu_item_new_with_label("Update All");
@@ -120,6 +110,8 @@ static GtkWidget* create_window(void){
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(view), view_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), view);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(hide_info), FALSE	);
+	gtk_menu_shell_append(GTK_MENU_SHELL(view_menu), hide_info);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(tools), tools_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), tools);
@@ -129,18 +121,19 @@ static GtkWidget* create_window(void){
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(help), help_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help);
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), help_option);
-	gtk_widget_add_accelerator(help_option, "activate", accel_group, GDK_KEY_H, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+	gtk_widget_add_accelerator(help_option, "activate", accel_group, GDK_KEY_F1, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(help_menu), about);
 
 	/// Menu events
 	g_signal_connect (G_OBJECT(new_nation), "activate", G_CALLBACK(on_new_nation), NULL);
 	g_signal_connect (G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
 
+	g_signal_connect (G_OBJECT(hide_info), "activate", G_CALLBACK(toggle_infobox), infobox);
+
 	g_signal_connect (G_OBJECT(update), "activate", G_CALLBACK(on_update), NULL);
 
 	g_signal_connect (G_OBJECT(help_option), "activate", G_CALLBACK(on_help), NULL);
 	g_signal_connect (G_OBJECT(about), "activate", G_CALLBACK(on_about), NULL);
-
 
 	/// Main box starting
 	gtk_container_add(GTK_CONTAINER(window), main_box);
@@ -159,7 +152,7 @@ static GtkWidget* create_window(void){
 	gtk_box_pack_start(GTK_BOX(left_box), treeview, TRUE, TRUE, 1);
 
 	/// Right box starting
-	gtk_box_pack_start(GTK_BOX(right_box), flag_nation_info_label, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(right_box), infobox, TRUE, TRUE, 1);
 	gtk_box_pack_start(GTK_BOX(right_box), notebook, TRUE, TRUE, 1);
 
 	/// Set up signal handlers for events
@@ -172,7 +165,44 @@ static GtkWidget* create_window(void){
 }
 
 void on_new_nation(){
+	char nation_name[40];
+	///Declaring new nation stuff
+	GtkWidget *newnation_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title (GTK_WINDOW(newnation_window), "Add New Nation");
+	GtkWidget *main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+	GtkWidget *newnation_entry = gtk_entry_new();
+	GtkWidget *newnation_button = gtk_button_new_with_label("Add Nation");
 
+	///Placing objects in window
+	gtk_container_add(GTK_CONTAINER(newnation_window), main_box);
+	gtk_box_pack_start(GTK_BOX(main_box), newnation_entry, TRUE, TRUE, 1);
+	gtk_box_pack_start(GTK_BOX(main_box), newnation_button, TRUE, TRUE, 1);
+
+	///Make Window Show
+	gtk_widget_show_all(newnation_window);
+
+	///Gets info and adds new nation
+	//nation_name = gtk_entry_get_text(newnation_entry);
+
+	/// Form the url
+	char url_new[2048];
+	const char* base = "http://www.nationstates.net/cgi-bin/api.cgi?nation=";
+	const char* rest = "&q=censusscore-0+censusscore-1+censusscore-2+censusscore-3+censusscore-4+censusscore-5+censusscore-6+censusscore-7+censusscore-8+censusscore-9+censusscore-10+censusscore-11+censusscore-12+censusscore-13+censusscore-14+censusscore-15+censusscore-16+censusscore-17+censusscore-18+censusscore-19+censusscore-20+censusscore-21+censusscore-22+censusscore-23+censusscore-24+censusscore-25+censusscore-26+censusscore-27+censusscore-28+censusscore-29+censusscore-30+censusscore-31+censusscore-32+censusscore-33+censusscore-34+censusscore-35+censusscore-36+censusscore-37+censusscore-38+censusscore-39+censusscore-40+censusscore-41+censusscore-42+censusscore-43+censusscore-44+censusscore-45+censusscore-46+censusscore-47+censusscore-48+censusscore-49+censusscore-50+censusscore-51+censusscore-52+censusscore-53+censusscore-54+censusscore-55+censusscore-56+censusscore-57+censusscore-58+censusscore-59+censusscore-60+censusscore-61+censusscore-62+censusscore-63+censusscore-64+censusscore-65+censusscore-66+censusscore-67+censusscore-68+fullname+motto+category+freedom+region+tax+animal+animaltrait+currency+flag+crime+sensibilities+govt+govtdesc+industrydesc+notable+admirable+founded+lastactivity+influence+publicsector+deaths+legislation+happenings";
+	strcat(url_new, base);
+	strcat(url_new, nation_name);
+	strcat(url_new, rest);
+	/// Download the file
+	get_file("./nation.xml", url_new);
+	//save_census_median();
+
+	///Signal Handlers
+}
+
+void toggle_infobox(GtkWidget *hide_info, gpointer infobox){
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(hide_info)))
+		gtk_widget_hide(infobox);
+	else
+		gtk_widget_show(infobox);
 }
 
 void on_update(){
@@ -204,11 +234,16 @@ void on_about(){
 	gtk_box_pack_start(GTK_BOX(main_box), label, TRUE, TRUE, 1);
 	gtk_box_pack_start(GTK_BOX(main_box), close_button, FALSE, FALSE, 1);
 
-	///signal handlers
-
 	///Make window show
 	gtk_widget_show_all(about_window);
 
+	///Close Button
+	g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(about_window_close), G_OBJECT (about_window));
+}
+
+void about_window_close(GtkWidget *widget, gpointer window){
+	/// destroys the about window
+	gtk_widget_destroy(GTK_WIDGET(window));
 }
 
 void get_nation_data(const char* nation){
@@ -224,6 +259,19 @@ void get_nation_data(const char* nation){
 	/// Download the file
 	get_file("./nation.xml", url);
 	//save_census_median();
+}
+
+void get_file(char* file, char* url){
+	CURL *curl = curl_easy_init();
+	if (curl) {
+		FILE *fp = fopen(file,"wb");
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+		curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+		fclose(fp);
+	}
 }
 
 int main(int argc, char **argv){

@@ -20,7 +20,12 @@
 #include<string.h>
 
 void on_new_nation();
+void toggle_infobox(GtkWidget *hide_info, gpointer infobox);
 void on_update();
 void on_help();
 void on_about();
+void about_window_close(GtkWidget *widget, gpointer window);
+
+void get_nation_data(const char* nation);
+void get_file(char* file, char* url);
 
