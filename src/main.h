@@ -15,10 +15,9 @@
     along with nationstates-gtk.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-
+void nation_selection_changed();
+void get_selected_nation();
+void refresh_saves();
 void on_new_nation();
 void toggle_infobox(GtkWidget *hide_info, gpointer infobox);
 void on_update();
@@ -28,4 +27,17 @@ void about_window_close(GtkWidget *widget, gpointer window);
 
 void get_nation_data(const char* nation);
 void get_file(char* file, char* url);
+<<<<<<< HEAD
+=======
 
+GtkListStore *nationstore;
+GtkListStore *savestore;
+GtkWidget *nationview;
+GtkWidget *saveview;
+GtkTreeIter nation_row;
+GtkTreeSelection *selection;
+GtkCellRenderer *renderer;
+>>>>>>> 182840605f91546b1700936367eb4056a63b3449
+
+int i;
+char* selected_nation;
