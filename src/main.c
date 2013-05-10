@@ -51,7 +51,6 @@ static GtkWidget* create_window(void){
 	for(i=0; i<sizeof(tabs)/sizeof(tabs[0]); i++)
 		gtk_notebook_append_page(GTK_NOTEBOOK(notebook), tabs[i], gtk_label_new(tab_labels[i]));
 
-
 	/// Treeview declarations
 	GtkWidget *treeview = gtk_tree_view_new();
 	GtkTreeViewColumn *nation_stat = gtk_tree_view_column_new();
@@ -290,8 +289,6 @@ void nation_selection_changed(){
 void refresh_saves(){
 	get_selected_nation();
 	/// open selected_nation datelog and print them to saveview
-
-	///
 }
 
 /// When this is called, gets the currently selected nation in nationview and sets the global variable selected_nation to the name of the nation.
