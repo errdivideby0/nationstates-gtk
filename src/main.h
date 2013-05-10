@@ -16,8 +16,8 @@
 */
 
 void nation_selection_changed();
-void get_selected_nation();
-void refresh_saves();
+char* get_selected_nation();
+int refresh_saves();
 void on_new_nation();
 void toggle_infobox(GtkWidget *hide_info, gpointer infobox);
 void on_update();
@@ -37,4 +37,3 @@ GtkTreeSelection *selection;
 GtkCellRenderer *renderer;
 
 int i;
-char* selected_nation;
