@@ -291,16 +291,18 @@ void nation_selection_changed(){
 /// This should be called everytime a change happens to the nationview (new data was retrieved, a nation added, deleted, etc);
 int refresh_saves(){
 	char* selected_nat = get_selected_nation();
-	char* filepath = malloc(256);
-	strcat(filepath, "./nations-store/");
+	char filepath[128];
+	filepath[0] = '\0';
+	const char* start = "./nations-store/";
+	const char* end = "/datelog.txt";
+	strcat(filepath, start);
 	strcat(filepath, selected_nat);
-	strcat(filepath, "/datelog.txt");
+	strcat(filepath, end);
 	FILE *fp = fopen(filepath, "r");
 	if(fp == NULL){
 		printf("Could not find file: %s\n", filepath);
 		return 1;
 	}
-	free(filepath);
 
 	int count = count_lines(fp);
 	char* saves[count];
