@@ -36,4 +36,11 @@ GtkTreeIter nation_row, save_row;
 GtkTreeSelection *selection;
 GtkCellRenderer *renderer;
 
+void on_new_nation();
+GtkWidget *newnation_entry;
+GtkWidget *newnation_button;
+void on_newnation_button_clicked();
+void newnation_close(GtkWidget *widget, gpointer window){
+
+
 int i;
